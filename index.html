@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Отзывы о продуктах</title>
+    <style>
+        .review {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Страница добавления отзыва</h1>
+    <input type="text" id="productName" placeholder="Название продукта"><br>
+    <textarea id="reviewText" placeholder="Отзыв о продукте"></textarea><br>
+    <button onclick="addReview()">Добавить отзыв</button>
+
+    <h1>Страница просмотра отзывов</h1>
+    <ul id="productList"></ul>
+    <div id="reviews"></div>
+
+    <script>
+        function addReview() {
+            var productName = document.getElementById("productName").value;
+            var reviewText = document.getElementById("reviewText").value;
+
+            var reviews = JSON.parse(localStorage.getItem('reviews')) || {};
+
+            if (!reviews[productName]) {
+                reviews[productName] = [];
+            }
+
+            reviews[productName].push(reviewText);
+
+            localStorage.setItem('reviews', JSON.stringify(reviews));
+
+            showReviews();
+        }
+
+        function showReviews() {
+            var reviews = JSON.parse(localStorage.getItem('reviews')) || {};
+            var productList = document.getElementById("productList");
+            var reviewsDiv = document.getElementById("reviews");
+
+            productList.innerHTML = "";
+            reviewsDiv.innerHTML = "";
+
+            for (var product in reviews) {
+                var listItem = document.createElement("li");
+                listItem.innerText = product;
+                listItem.onclick = function () {
+                    reviewsDiv.innerHTML = "";
+                    reviews[product].forEach(function(review, index) {
+                        var reviewDiv = document.createElement("div");
+                        reviewDiv.classList.add('review');
+                        reviewDiv.innerHTML = review + ' <button onclick="deleteReview(\'' + product + '\', ' + index + ')">Удалить</button>';
+                        reviewsDiv.appendChild(reviewDiv);
+                    });
+                }
+                productList.appendChild(listItem);
+            }
+        }
+
+        function deleteReview(productName, reviewIndex) {
+            var reviews = JSON.parse(localStorage.getItem('reviews')) || {};
+
+            reviews[productName].splice(reviewIndex, 1);
+
+            localStorage.setItem('reviews', JSON.stringify(reviews));
+
+            showReviews();
+        }
+
+        showReviews(); // Показать отзывы при загрузке страницы
+    </script>
+</body>
+</html>
